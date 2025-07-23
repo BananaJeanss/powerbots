@@ -1,0 +1,24 @@
+{
+  "name": "powerbots",
+  "version": "1.0.0",
+  "description": "https://github.com/BananaJeanss/powerbots.git",
+  "homepage": "https://github.com/BananaJeanss/powerbots#readme",
+  "bugs": {
+    "url": "https://github.com/BananaJeanss/powerbots/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BananaJeanss/powerbots.git"
+  },
+  "license": "GPL-3.0",
+  "author": "BananaJeanss",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0"
+  }
+}

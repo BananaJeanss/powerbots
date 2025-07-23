@@ -1,4 +1,4 @@
-import { Events, MessageFlags } from "discord.js";
+import { Events, MessageFlags, Collection } from "discord.js";
 
 export const name = Events.InteractionCreate;
 export async function execute(interaction) {
@@ -9,6 +9,20 @@ export async function execute(interaction) {
   if (!command) {
     console.error(`No command matching ${interaction.commandName} was found.`);
     return;
+  }
+
+  // check if command is enabled for this guild
+  const db = interaction.client.db;
+  const guildId = interaction.guildId;
+  const commandName = interaction.commandName;
+  const settings = await db
+    .collection("guildCommands")
+    .findOne({ guild_id: guildId });
+  if (settings && settings.disabled_commands?.includes(commandName)) {
+    return interaction.reply({
+      content: `The \`${commandName}\` command is disabled in this server.`,
+      ephemeral: true,
+    });
   }
 
   const { cooldowns } = interaction.client;

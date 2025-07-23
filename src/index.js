@@ -5,14 +5,23 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { config } from "dotenv";
+import { MongoClient } from "mongodb";
 
+// env file config
 config();
 const token = process.env.DISCORD_BOT_TOKEN;
 
+// mongodb setup
+const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+const mongoClient = new MongoClient(mongoUri);
+
+await mongoClient.connect();
+const db = mongoClient.db("powerbots");
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+client.db = db;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 client.cooldowns = new Collection();

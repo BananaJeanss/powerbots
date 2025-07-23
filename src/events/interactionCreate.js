@@ -1,8 +1,22 @@
-import { Events, MessageFlags, Collection } from "discord.js";
+import { Events, MessageFlags, Collection, EmbedBuilder } from "discord.js";
+
+// build embed for logging
+const buildLogEmbed = (userPfp, username, commandName, timestamp, channelName) => {
+  return new EmbedBuilder()
+    .setColor("#0099ff")
+    .setAuthor({
+      name: username,
+      iconURL: userPfp,
+    })
+    .setDescription(`Ran command \`${commandName}\` in \`#${channelName}\``)
+    .setTimestamp(timestamp);
+};
 
 export const name = Events.InteractionCreate;
+
 export async function execute(interaction) {
   if (!interaction.isChatInputCommand()) return;
+  console.log(`> Received command: ${interaction.commandName} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild.name} (${interaction.guild.id})`);
 
   const command = interaction.client.commands.get(interaction.commandName);
 
@@ -53,6 +67,25 @@ export async function execute(interaction) {
 
   try {
     await command.execute(interaction);
+
+    // additionaly log in servers log channel if logging enabled
+    const settings = await db.collection("guildLogs").findOne({ guild_id: guildId });
+    if (settings && settings.logging_enabled && settings.log_channel) {
+      const logChannel = interaction.guild.channels.cache.get(settings.log_channel);
+      if (logChannel && logChannel.isTextBased()) {
+          logChannel.send({
+            embeds: [buildLogEmbed(
+              interaction.user.displayAvatarURL({ dynamic: true }),
+              interaction.user.tag,
+              command.data.name,
+              new Date(),
+              interaction.channel.name
+            )]
+          }).catch(console.error);
+      } else {
+        console.log(`Log channel not found or not text-based for guild ${guildId}.`);
+      }
+    }
   } catch (error) {
     console.error(error);
     if (interaction.replied || interaction.deferred) {

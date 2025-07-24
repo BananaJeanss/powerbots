@@ -1,4 +1,4 @@
-import { addModlog } from "../../utils/modlogs.js";
+import { addModlog } from "#utils/modlogs.js";
 import {
   SlashCommandBuilder,
   PermissionsBitField,

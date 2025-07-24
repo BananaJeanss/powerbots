@@ -4,7 +4,7 @@ import {
   PermissionsBitField,
   MessageFlags,
 } from "discord.js";
-import { addModlog } from "../../utils/modlogs.js";
+import { addModlog } from "#utils/modlogs.js";
 
 export const data = new SlashCommandBuilder()
   .setName("kick")

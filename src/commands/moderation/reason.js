@@ -4,7 +4,7 @@ import {
   MessageFlags,
   EmbedBuilder,
 } from "discord.js";
-import { modifyModlogReason } from "../../utils/modlogs.js";
+import { modifyModlogReason } from "#utils/modlogs.js";
 
 export const data = new SlashCommandBuilder()
   .setName("reason")

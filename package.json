@@ -13,6 +13,9 @@
   "license": "GPL-3.0",
   "author": "BananaJeanss",
   "type": "module",
+    "imports": {
+    "#utils/*": "./src/utils/*"
+  },
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

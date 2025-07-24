@@ -93,10 +93,29 @@ export async function addModlog(
 export async function modifyModlogReason(interaction, modlogId, newReason) {
   const db = interaction.client.db;
 
+  // make sure modlogId is number, convert if not
+  if (typeof modlogId !== "number") {
+    modlogId = parseInt(modlogId, 10);
+    if (isNaN(modlogId)) {
+      console.error("Invalid modlog ID provided.");
+      return false;
+    }
+  }
+
   // update the reason in the db
   await db
     .collection("userModlogs")
     .updateOne({ id: modlogId }, { $set: { reason: newReason } });
+
+  // fetch the updated modlog entry
+  const modlog = await db
+    .collection("userModlogs")
+    .findOne({ id: modlogId });
+
+  if (!modlog) {
+    console.error("Modlog not found.");
+    return false;
+  }
 
   // send the embed to the modlogs channel
   const settings = await db
@@ -105,21 +124,31 @@ export async function modifyModlogReason(interaction, modlogId, newReason) {
   const modlogsChannelId = settings ? settings.modlog_channel : null;
   if (!modlogsChannelId) {
     console.error("Modlogs channel not set for this guild.");
-    return;
+    return false;
   }
   const modlogsChannel = interaction.guild.channels.cache.get(modlogsChannelId);
   if (!modlogsChannel || !modlogsChannel.isTextBased()) {
     console.error("Modlogs channel not found or not a text channel.");
-    return;
+    return false;
   }
+
+  // fetch user and moderator tags
+  const user = await interaction.client.users.fetch(modlog.user_id).catch(() => null);
+  const moderator = await interaction.client.users.fetch(modlog.moderator_id).catch(() => null);
+
   const logEmbed = buildLogEmbed(
-    interaction.user.displayAvatarURL(),
-    interaction.user.tag,
-    `Modlog Reason Updated (ID: ${modlogId})`,
+    user ? user.displayAvatarURL() : null,
+    user ? user.tag : "Unknown User",
+    `Modlog Reason Updated`,
     new Date(),
-    "#f1c40f"
+    "#f1c40f",
+    moderator ? moderator.tag : "Unknown Moderator",
+    newReason,
+    modlogId
   );
   await modlogsChannel.send({ embeds: [logEmbed] });
+
+  return true;
 }
 
 export async function deleteModlog(interaction, modlogId) {

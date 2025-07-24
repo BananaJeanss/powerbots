@@ -50,7 +50,7 @@ export async function execute(interaction) {
 
         return interaction.reply({
             content: `Logging has been ${enable ? 'enabled' : 'disabled'} for this server.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     } else if (interaction.options.getSubcommand() === 'channel') { // set logging channel
         const channel = interaction.options.getChannel('channel');
@@ -58,7 +58,7 @@ export async function execute(interaction) {
         if (!channel.isTextBased()) {
             return interaction.reply({
                 content: 'You must select a text channel for logging.',
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
 
@@ -72,7 +72,7 @@ export async function execute(interaction) {
 
         return interaction.reply({
             content: `Logging channel has been set to <#${channel.id}>.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 }

@@ -35,7 +35,7 @@ export async function execute(interaction) {
   if (settings && settings.disabled_commands?.includes(commandName)) {
     return interaction.reply({
       content: `The \`${commandName}\` command is disabled in this server.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 

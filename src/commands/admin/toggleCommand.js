@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionsBitField } from 'discord.js';
+import { SlashCommandBuilder, PermissionsBitField, MessageFlags } from 'discord.js';
 
 export const cooldown = 5;
 export const data = new SlashCommandBuilder()
@@ -26,7 +26,7 @@ export async function execute(interaction) {
     if (!command) {
         return interaction.reply({
             content: `The command \`${commandName}\` does not exist.`,
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
     }
 
@@ -44,7 +44,7 @@ export async function execute(interaction) {
         if (!settings.disabled_commands.includes(commandName)) {
             return interaction.reply({
                 content: `The command \`${commandName}\` is already enabled.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
         // enable the command
@@ -54,7 +54,7 @@ export async function execute(interaction) {
         if (settings.disabled_commands.includes(commandName)) {
             return interaction.reply({
                 content: `The command \`${commandName}\` is already disabled.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         }
         // disable the command
@@ -70,6 +70,6 @@ export async function execute(interaction) {
 
     return interaction.reply({
         content: `The \`${commandName}\` command has been ${enable ? 'enabled' : 'disabled'} for this server.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
     });
 }

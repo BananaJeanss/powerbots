@@ -101,8 +101,10 @@ export async function execute(interaction) {
     } catch (error) {
       if (error.code === 50007) {
         // do nothing
+      } else {
+        console.warn(`Failed to send DM to ${targetUser.tag}:`);
+        console.warn(error);
       }
-      console.error("Failed to send DM:", error);
     }
   }
 

@@ -151,7 +151,7 @@ export async function modifyModlogReason(interaction, modlogId, newReason) {
   return true;
 }
 
-export async function deleteModlog(interaction, modlogId) {
+export async function deleteModlog(interaction, modlogId, reason) {
   const db = interaction.client.db;
 
   // fetch the modlogs channel id from db
@@ -185,8 +185,10 @@ export async function deleteModlog(interaction, modlogId) {
     username,
     deletedLog.action + " (Deleted)",
     deletedLog.timestamp,
-    deletedLog.channel,
-    "#e74c3c"
+    "#e74c3c",
+    interaction.user.tag,
+    reason,
+    deletedLog.id
   );
   await modlogsChannel.send({ embeds: [logEmbed] });
 
@@ -216,4 +218,50 @@ export async function getModlogs(db, guildId) {
     timestamp: log.timestamp,
     reason: log.reason || null,
   }));
+}
+
+export async function getUserModlogs(db, guildId, userId) {
+  // get user modlogs
+  const userModlogs = await db
+    .collection("userModlogs")
+    .find({ guild_id: guildId, user_id: userId })
+    .sort({ timestamp: -1 })
+    .toArray();
+
+  // and return modlogs
+  return userModlogs.map((log) => ({
+    id: log.id,
+    userId: log.user_id,
+    moderatorId: log.moderator_id,
+    action: log.action,
+    channel: log.channel,
+    timestamp: log.timestamp,
+    reason: log.reason || null,
+  }));
+}
+
+export async function getUserWarns(db, guildId, userId) {
+  // get user warnings
+  const userWarns = await db
+    .collection("userModlogs")
+    .find({ guild_id: guildId, user_id: userId, action: "Warn" })
+    .sort({ timestamp: -1 })
+    .toArray();
+
+  // and return warnings
+  return userWarns.map((warn) => ({
+    id: warn.id,
+    userId: warn.user_id,
+    moderatorId: warn.moderator_id,
+    reason: warn.reason || null,
+    timestamp: warn.timestamp,
+  }));
+}
+
+export async function findLogByCase(db, guildId, caseNumber) {
+  // find log by case number
+  const log = await db
+    .collection("userModlogs")
+    .findOne({ guild_id: guildId, id: caseNumber });
+  return log;
 }

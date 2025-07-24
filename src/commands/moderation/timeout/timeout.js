@@ -209,7 +209,7 @@ export async function execute(interaction) {
     // and embed
     const responseEmbed = new EmbedBuilder()
       .setColor("#FFD700")
-      .setTitle("User Timeout")
+      .setTitle("Timeout")
       .setDescription(description)
       .setTimestamp();
 

@@ -21,10 +21,15 @@ export async function execute(interaction) {
     const db = interaction.client.db;
     const guildId = interaction.guildId;
 
+    // defer reply
+    await interaction.deferReply({
+        flags: MessageFlags.Ephemeral,
+    });
+
     // check if the command actually exists
     const command = interaction.client.commands.get(commandName);
     if (!command) {
-        return interaction.reply({
+        return interaction.editReply({
             content: `The command \`${commandName}\` does not exist.`,
             flags: MessageFlags.Ephemeral,
         });
@@ -42,7 +47,7 @@ export async function execute(interaction) {
     if (enable) {
         // check if already enabled
         if (!settings.disabled_commands.includes(commandName)) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: `The command \`${commandName}\` is already enabled.`,
                 flags: MessageFlags.Ephemeral,
             });
@@ -52,7 +57,7 @@ export async function execute(interaction) {
     } else {
         // check if already disabled
         if (settings.disabled_commands.includes(commandName)) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: `The command \`${commandName}\` is already disabled.`,
                 flags: MessageFlags.Ephemeral,
             });
@@ -68,7 +73,7 @@ export async function execute(interaction) {
         { upsert: true }
     );
 
-    return interaction.reply({
+    return interaction.editReply({
         content: `The \`${commandName}\` command has been ${enable ? 'enabled' : 'disabled'} for this server.`,
         flags: MessageFlags.Ephemeral,
     });

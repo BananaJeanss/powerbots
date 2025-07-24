@@ -42,13 +42,18 @@ export async function execute(interaction) {
   const sendDM = interaction.options.getBoolean("dm") !== false; // default to true if not specified
   const ephemeral = interaction.options.getBoolean("ephemeral") === true;
 
+  // defer reply
+  await interaction.deferReply({
+    flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+  });
+
   // check if the target user is not a mod+
   if (
     interaction.guild.members.cache
       .get(targetUser.id)
       .permissions.has(PermissionsBitField.Flags.ModerateMembers)
   ) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot warn a user with moderation permissions.",
       flags: MessageFlags.Ephemeral,
     });
@@ -56,7 +61,7 @@ export async function execute(interaction) {
 
   // check if the target user is not the bot itself
   if (targetUser.id === interaction.client.user.id) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot warn the bot itself.",
       flags: MessageFlags.Ephemeral,
     });
@@ -64,7 +69,7 @@ export async function execute(interaction) {
 
   // check if the target user is not the command invoker
   if (targetUser.id === interaction.user.id) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot warn yourself.",
       flags: MessageFlags.Ephemeral,
     });
@@ -111,7 +116,7 @@ export async function execute(interaction) {
     .setDescription(description)
     .setTimestamp();
 
-  interaction.reply({
+  interaction.editReply({
     embeds: [warningEmbed],
     flags: ephemeral ? MessageFlags.Ephemeral : undefined,
   });

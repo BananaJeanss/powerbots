@@ -54,9 +54,14 @@ export async function execute(interaction) {
   const dm = interaction.options.getBoolean("dm") ?? true;
   const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
 
+  // defer reply
+  await interaction.deferReply({
+    flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+  });
+
   // Validate duration format
   if (!/^(\d+[dhms])+$/i.test(duration)) {
-    return interaction.reply({
+    return interaction.editReply({
       content: 'Invalid duration format. Use "1d", "1h30m", or "10s".',
       flags: MessageFlags.Ephemeral,
     });
@@ -73,7 +78,7 @@ export async function execute(interaction) {
       totalMilliseconds += parseInt(currentNumber, 10) * timeUnits[char];
       currentNumber = "";
     } else {
-      return interaction.reply({
+      return interaction.editReply({
         content: `Invalid time unit "${char}". Use "d", "h", "m", or "s".`,
         flags: MessageFlags.Ephemeral,
       });
@@ -86,14 +91,14 @@ export async function execute(interaction) {
   }
 
   if (currentNumber) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "Duration must end with a time unit.",
       flags: MessageFlags.Ephemeral,
     });
   }
 
   if (!user) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You must specify a user to timeout.",
       flags: MessageFlags.Ephemeral,
     });
@@ -103,7 +108,7 @@ export async function execute(interaction) {
     .fetch(user.id)
     .catch(() => null);
   if (!member) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "That user is not in this server.",
       flags: MessageFlags.Ephemeral,
     });
@@ -115,7 +120,7 @@ export async function execute(interaction) {
       interaction.member.roles.highest.position &&
     interaction.guild.ownerId !== interaction.user.id // allow owner to timeout anyone
   ) {
-    return interaction.reply({
+    return interaction.editReply({
       content:
         "You cannot timeout a user with an equal or higher role than yourself.",
       flags: MessageFlags.Ephemeral,
@@ -127,7 +132,7 @@ export async function execute(interaction) {
     member.roles.highest.position >=
     interaction.guild.members.me.roles.highest.position
   ) {
-    return interaction.reply({
+    return interaction.editReply({
       content:
         "I cannot timeout this user because their role is higher or equal to my highest role.",
       flags: MessageFlags.Ephemeral,
@@ -136,19 +141,19 @@ export async function execute(interaction) {
 
   // self, bot, owner, and mod checks
   if (user.id === interaction.user.id) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot timeout yourself.",
       flags: MessageFlags.Ephemeral,
     });
   }
   if (user.id === interaction.client.user.id) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot timeout the bot.",
       flags: MessageFlags.Ephemeral,
     });
   }
   if (user.id === interaction.guild.ownerId) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot timeout the server owner.",
       flags: MessageFlags.Ephemeral,
     });
@@ -162,7 +167,7 @@ export async function execute(interaction) {
       PermissionsBitField.Flags.Administrator,
     ])
   ) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You cannot timeout a user with moderation permissions.",
       flags: MessageFlags.Ephemeral,
     });
@@ -208,12 +213,12 @@ export async function execute(interaction) {
       .setDescription(description)
       .setTimestamp();
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [responseEmbed],
       flags: ephemeral ? MessageFlags.Ephemeral : undefined,
     });
   } catch (error) {
-    interaction.reply({
+    interaction.editReply({
       content: "An error occurred while trying to timeout the user.",
       flags: MessageFlags.Ephemeral,
     });

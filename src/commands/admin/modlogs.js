@@ -30,6 +30,11 @@ export async function execute(interaction) {
     const db = interaction.client.db;
     const guildId = interaction.guildId;
 
+    // defer reply
+    await interaction.deferReply({
+        flags: MessageFlags.Ephemeral,
+    });
+
     // get the current settings for this guild
     let settings = await db.collection('guildModLogs').findOne({ guild_id: guildId });
     
@@ -48,7 +53,7 @@ export async function execute(interaction) {
             { upsert: true }
         );
 
-        return interaction.reply({
+        return interaction.editReply({
             content: `Modlogs have been ${enable ? 'enabled' : 'disabled'} for this server.`,
             flags: MessageFlags.Ephemeral,
         });
@@ -56,7 +61,7 @@ export async function execute(interaction) {
         const channel = interaction.options.getChannel('channel');
 
         if (!channel.isTextBased()) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: 'You must select a text channel for modlogs.',
                 flags: MessageFlags.Ephemeral,
             });
@@ -71,12 +76,12 @@ export async function execute(interaction) {
             { upsert: true }
         );
 
-        return interaction.reply({
+        return interaction.editReply({
             content: `Modlog channel has been set to <#${channel.id}>.`,
             flags: MessageFlags.Ephemeral,
         });
     } else if (interaction.options.getSubcommand() === 'info') { // show current settings
-        return interaction.reply({
+        return interaction.editReply({
             content: `Current Modlog Settings:\n- Enabled: ${settings.modlogs_enabled}\n- Channel: ${settings.modlog_channel ? `<#${settings.modlog_channel}>` : 'None'}`,
             flags: MessageFlags.Ephemeral,
         });

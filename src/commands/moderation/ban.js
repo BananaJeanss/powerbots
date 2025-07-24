@@ -49,9 +49,14 @@ export async function execute(interaction) {
   const dm = interaction.options.getBoolean("dm") ?? true;
   const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
 
+  // defer reply
+  await interaction.deferReply({
+    flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+  });
+
   // ensure either id or user is specified
   if (!user && !userid) {
-    return interaction.reply({
+    return interaction.editReply({
       content: "You must specify a user or ID to ban.",
       flags: MessageFlags.Ephemeral,
     });
@@ -73,7 +78,7 @@ export async function execute(interaction) {
         interaction.member.roles.highest.position &&
       interaction.guild.ownerId !== interaction.user.id
     ) {
-      return interaction.reply({
+      return interaction.editReply({
         content:
           "You cannot ban a user with an equal or higher role than yourself.",
         flags: MessageFlags.Ephemeral,
@@ -84,7 +89,7 @@ export async function execute(interaction) {
       member.roles.highest.position >=
       interaction.guild.members.me.roles.highest.position
     ) {
-      return interaction.reply({
+      return interaction.editReply({
         content:
           "I cannot ban this user because their role is higher or equal to my highest role.",
         flags: MessageFlags.Ephemeral,
@@ -92,19 +97,19 @@ export async function execute(interaction) {
     }
     // self, bot, owner, and mod checks
     if (targetId === interaction.user.id) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "You cannot ban yourself.",
         flags: MessageFlags.Ephemeral,
       });
     }
     if (targetId === interaction.client.user.id) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "You cannot ban the bot.",
         flags: MessageFlags.Ephemeral,
       });
     }
     if (targetId === interaction.guild.ownerId) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "You cannot ban the server owner.",
         flags: MessageFlags.Ephemeral,
       });
@@ -117,7 +122,7 @@ export async function execute(interaction) {
         PermissionsBitField.Flags.Administrator,
       ])
     ) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "You cannot ban a user with moderation permissions.",
         flags: MessageFlags.Ephemeral,
       });
@@ -175,13 +180,13 @@ export async function execute(interaction) {
       .setDescription(description)
       .setTimestamp();
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [responseEmbed],
       flags: ephemeral ? MessageFlags.Ephemeral : undefined,
     });
   } catch (error) {
     console.error(error);
-    return interaction.reply({
+    return interaction.editReply({
       content: "There was an error trying to ban that user.",
       flags: ephemeral ? MessageFlags.Ephemeral : undefined,
     });

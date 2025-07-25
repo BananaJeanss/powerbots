@@ -48,7 +48,10 @@ export async function execute(interaction) {
       embed.addFields(
         warns.map((warn) => ({
           name: `Case #${warn.id}`,
-          value: warn.reason || "No reason provided",
+          value:
+            `**Moderator:** <@${warn.moderatorId}>\n` +
+            `**Reason:** ${warn.reason || "No reason provided"}\n` +
+            `**Date:** <t:${Math.floor(new Date(warn.timestamp).getTime() / 1000)}:f>`,
           inline: false,
         }))
       );

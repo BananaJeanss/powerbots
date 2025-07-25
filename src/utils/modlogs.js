@@ -244,7 +244,7 @@ export async function getUserWarns(db, guildId, userId) {
   // get user warnings
   const userWarns = await db
     .collection("userModlogs")
-    .find({ guild_id: guildId, user_id: userId, action: "Warn" })
+    .find({ guild_id: guildId, user_id: userId, action: "Warning" })
     .sort({ timestamp: -1 })
     .toArray();
 

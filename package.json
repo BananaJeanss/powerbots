@@ -13,7 +13,7 @@
   "license": "GPL-3.0",
   "author": "BananaJeanss",
   "type": "module",
-    "imports": {
+  "imports": {
     "#utils/*": "./src/utils/*"
   },
   "main": "src/index.js",
@@ -22,6 +22,7 @@
     "deploy-commands": "node src/deploy-commands.js"
   },
   "dependencies": {
+    "canvas": "^3.1.2",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
     "mongodb": "^6.18.0"

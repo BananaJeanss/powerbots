@@ -108,9 +108,7 @@ export async function modifyModlogReason(interaction, modlogId, newReason) {
     .updateOne({ id: modlogId }, { $set: { reason: newReason } });
 
   // fetch the updated modlog entry
-  const modlog = await db
-    .collection("userModlogs")
-    .findOne({ id: modlogId });
+  const modlog = await db.collection("userModlogs").findOne({ id: modlogId });
 
   if (!modlog) {
     console.error("Modlog not found.");
@@ -133,8 +131,12 @@ export async function modifyModlogReason(interaction, modlogId, newReason) {
   }
 
   // fetch user and moderator tags
-  const user = await interaction.client.users.fetch(modlog.user_id).catch(() => null);
-  const moderator = await interaction.client.users.fetch(modlog.moderator_id).catch(() => null);
+  const user = await interaction.client.users
+    .fetch(modlog.user_id)
+    .catch(() => null);
+  const moderator = await interaction.client.users
+    .fetch(modlog.moderator_id)
+    .catch(() => null);
 
   const logEmbed = buildLogEmbed(
     user ? user.displayAvatarURL() : null,
@@ -264,4 +266,68 @@ export async function findLogByCase(db, guildId, caseNumber) {
     .collection("userModlogs")
     .findOne({ guild_id: guildId, id: caseNumber });
   return log;
+}
+
+export async function addPurgeLog(
+  interaction,
+  guildId,
+  moderatorId,
+  channelId,
+  amount,
+  reason
+) {
+  const db = interaction.client.db;
+  // purge logs follow the modlogs db id just for simplicity
+  const latestLog = await db
+    .collection("userModlogs")
+    .find({ guild_id: guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
+
+  const nextId = latestLog.length > 0 ? latestLog[0].id + 1 : 1;
+
+  // add purge log to db
+  await db.collection("purgeLogs").insertOne({
+    guild_id: guildId,
+    moderator_id: moderatorId,
+    channel_id: channelId,
+    amount: amount,
+    timestamp: new Date(),
+    id: nextId,
+    reason: reason,
+  });
+
+  // and send to modlogs channel
+  const settings = await db
+    .collection("guildModLogs")
+    .findOne({ guild_id: guildId });
+  const modlogsChannelId = settings ? settings.modlog_channel : null;
+  if (!modlogsChannelId) {
+    console.error("Modlogs channel not set for this guild.");
+    return;
+  }
+  const modlogsChannel = interaction.guild.channels.cache.get(modlogsChannelId);
+  if (!modlogsChannel || !modlogsChannel.isTextBased()) {
+    console.error("Modlogs channel not found or not a text channel.");
+    return;
+  }
+  const moderator = await interaction.client.users
+    .fetch(moderatorId)
+    .catch(() => null);
+  const logEmbed = new EmbedBuilder()
+    .setColor("#95a5a6")
+    .setTitle(`Case #${nextId} | Purge`)
+    .addFields(
+      {
+        name: "Moderator",
+        value: moderator ? moderator.tag : "Unknown",
+        inline: true,
+      },
+      { name: "Channel", value: `<#${channelId}>`, inline: true },
+      { name: "Amount", value: `${amount} messages`, inline: true },
+      { name: "Reason", value: reason || "No reason provided", inline: true }
+    )
+    .setTimestamp(new Date());
+  await modlogsChannel.send({ embeds: [logEmbed] });
 }

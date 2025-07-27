@@ -16,7 +16,7 @@ export const name = Events.InteractionCreate;
 
 export async function execute(interaction) {
   if (!interaction.isChatInputCommand()) return;
-  console.log(`> Received command: ${interaction.commandName} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild.name} (${interaction.guild.id})`);
+  console.log(`>> ${interaction.commandName} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild.name} (${interaction.guild.id}) at ${new Date().toISOString()}`);
 
   const command = interaction.client.commands.get(interaction.commandName);
 

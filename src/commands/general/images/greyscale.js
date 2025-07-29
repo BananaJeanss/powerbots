@@ -4,7 +4,7 @@ import {
   AttachmentBuilder,
 } from "discord.js";
 import { createCanvas, loadImage } from "canvas";
-
+export const cooldown = 10;
 export const data = new SlashCommandBuilder()
   .setName("greyscale")
   .setDescription("Converts an image to greyscale")

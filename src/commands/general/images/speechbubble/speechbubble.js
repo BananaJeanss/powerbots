@@ -9,7 +9,7 @@ import { dirname, join } from "node:path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
+export const cooldown = 10;
 export const data = new SlashCommandBuilder()
   .setName("speechbubble")
   .setDescription("Adds a speech bubble to an image")

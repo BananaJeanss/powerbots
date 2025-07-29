@@ -277,15 +277,23 @@ export async function addPurgeLog(
   reason
 ) {
   const db = interaction.client.db;
-  // purge logs follow the modlogs db id just for simplicity
-  const latestLog = await db
+  // get latest modlog id from both collections
+  const latestUserModlog = await db
     .collection("userModlogs")
     .find({ guild_id: guildId })
     .sort({ id: -1 })
     .limit(1)
     .toArray();
+  const latestPurgeLog = await db
+    .collection("purgeLogs")
+    .find({ guild_id: guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
 
-  const nextId = latestLog.length > 0 ? latestLog[0].id + 1 : 1;
+  const latestIdUser = latestUserModlog.length > 0 ? latestUserModlog[0].id : 0;
+  const latestIdPurge = latestPurgeLog.length > 0 ? latestPurgeLog[0].id : 0;
+  const nextId = Math.max(latestIdUser, latestIdPurge) + 1;
 
   // add purge log to db
   await db.collection("purgeLogs").insertOne({

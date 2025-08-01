@@ -55,10 +55,18 @@ export async function execute(interaction) {
   ];
   const response = responses[Math.floor(Math.random() * responses.length)];
 
-  if (filter.isProfane(question)) {
-    question = filter.clean(question);
-    // escape asterisks to prevent markdown issues
-    question = question.replace(/\*/g, "\\*");
+  // check if guild has filters.profanity enabled
+  if (interaction.guild) {
+    const guildData = await interaction.client.db
+      .collection("guilds")
+      .findOne({ guild_id: interaction.guild.id });
+    if (guildData && guildData.filters && guildData.filters.profanity) {
+      if (filter.isProfane(question)) {
+        question = filter.clean(question);
+        // escape asterisks to prevent markdown issues
+        question = question.replace(/\*/g, "\\*");
+      }
+    }
   }
 
   let descResp = "**Question:** " + question + "\n**Answer:** " + response;

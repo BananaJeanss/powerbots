@@ -17,7 +17,13 @@ const mongoClient = new MongoClient(mongoUri);
 
 await mongoClient.connect();
 const db = mongoClient.db("powerbots");
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildPresences,
+  ],
+});
 client.db = db;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,8 +60,10 @@ for (const filePath of commandFiles) {
   }
 }
 
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs
+  .readdirSync(eventsPath)
+  .filter((file) => file.endsWith(".js"));
 
 for (const file of eventFiles) {
   const filePath = path.join(eventsPath, file);

@@ -40,15 +40,30 @@ export async function addModlog(
 
   const db = interaction.client.db;
 
-  // get latest modlog from guild to increment the id
-  const latestLog = await db
+  // get latest modlog id from all collections
+  const latestUserModlog = await db
     .collection("userModlogs")
     .find({ guild_id: interaction.guildId })
     .sort({ id: -1 })
     .limit(1)
     .toArray();
+  const latestPurgeLog = await db
+    .collection("purgeLogs")
+    .find({ guild_id: interaction.guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
+  const latestSlowmodeLog = await db
+    .collection("slowmodeLogs")
+    .find({ guild_id: interaction.guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
 
-  const nextId = latestLog.length > 0 ? latestLog[0].id + 1 : 1;
+  const latestIdUser = latestUserModlog.length > 0 ? latestUserModlog[0].id : 0;
+  const latestIdPurge = latestPurgeLog.length > 0 ? latestPurgeLog[0].id : 0;
+  const latestIdSlowmode = latestSlowmodeLog.length > 0 ? latestSlowmodeLog[0].id : 0;
+  const nextId = Math.max(latestIdUser, latestIdPurge, latestIdSlowmode) + 1;
 
   // add modlog to db
   await db.collection("userModlogs").insertOne({
@@ -351,7 +366,7 @@ export async function getUserNotes(db, guildId, userId) {
   if (userNotes && userNotes.notes) {
     return userNotes.notes;
   } else {
-    return null; // or an empty string if preferred
+    return null;
   }
 }
 

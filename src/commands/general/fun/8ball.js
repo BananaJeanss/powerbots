@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import { Filter } from "bad-words";
 
 export const data = new SlashCommandBuilder()
@@ -11,13 +11,24 @@ export const data = new SlashCommandBuilder()
       .setName("question")
       .setDescription("The question to ask the magic 8-ball")
       .setRequired(true)
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName("ephemeral")
+      .setDescription(
+        "Whether to make the response ephemeral (only visible to you), defaults to false"
+      )
+      .setRequired(false)
   );
 export async function execute(interaction) {
   let question = interaction.options.getString("question");
   const filter = new Filter();
+  const ephemeral = interaction.options.getBoolean("ephemeral") || false;
 
   // defer reply
-  await interaction.deferReply();
+  await interaction.deferReply({
+    flags: ephemeral ? MessageFlags.Ephemeral : 0,
+  });
 
   const responses = [
     // from https://magic-8ball.com/magic-8-ball-answers/

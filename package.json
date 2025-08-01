@@ -22,6 +22,7 @@
     "deploy-commands": "node src/deploy-commands.js"
   },
   "dependencies": {
+    "bad-words": "^4.0.0",
     "canvas": "^3.1.2",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",

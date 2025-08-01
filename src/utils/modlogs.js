@@ -260,6 +260,101 @@ export async function getUserWarns(db, guildId, userId) {
   }));
 }
 
+export async function modifyUserNotes(interaction, userId, notes) {
+  const db = interaction.client.db;
+  const guildId = interaction.guildId;
+  const moderatorId = interaction.user.id;
+  let caseId;
+  try {
+    await db
+      .collection("userModlogs")
+      .updateOne(
+        { guild_id: guildId, user_id: userId },
+        { $set: { notes: notes } },
+        { upsert: true }
+      );
+
+    // add case to modlogs
+    const latestLog = await db
+      .collection("userModlogs")
+      .find({ guild_id: guildId })
+      .sort({ id: -1 })
+      .limit(1)
+      .toArray();
+    const nextId = latestLog.length > 0 ? latestLog[0].id + 1 : 1;
+    caseId = nextId;
+
+    await db.collection("userModlogs").insertOne({
+      guild_id: guildId,
+      user_id: userId,
+      moderator_id: moderatorId,
+      action: "Notes Modified",
+      timestamp: new Date(),
+      id: nextId,
+      reason: notes,
+    });
+
+    // fetch user and moderator
+    const discordUser = await interaction.client.users
+      .fetch(userId)
+      .catch(() => null);
+    const userPfp = discordUser ? discordUser.displayAvatarURL() : null;
+    const username = discordUser ? discordUser.tag : "Unknown User";
+    const moderatorUser = await interaction.client.users
+      .fetch(moderatorId)
+      .catch(() => null);
+    const moderatorTag = moderatorUser
+      ? moderatorUser.tag
+      : "Unknown Moderator";
+
+    // fetch modlogs channel id from db
+    const settings = await db
+      .collection("guildModLogs")
+      .findOne({ guild_id: guildId });
+    const modlogsChannelId = settings ? settings.modlog_channel : null;
+    if (!modlogsChannelId) {
+      console.error("Modlogs channel not set for this guild.");
+      return false;
+    }
+
+    // and embed
+    const logEmbed = buildLogEmbed(
+      userPfp,
+      username,
+      "Notes Modified",
+      new Date(),
+      "#9b59b6",
+      moderatorTag,
+      notes,
+      caseId
+    );
+
+    const modlogsChannel =
+      interaction.guild.channels.cache.get(modlogsChannelId);
+    if (modlogsChannel) {
+      await modlogsChannel.send({ embeds: [logEmbed] });
+    }
+    return true;
+  } catch (error) {
+    console.error("Error creating log embed:", error);
+    return false;
+  }
+}
+
+export async function getUserNotes(db, guildId, userId) {
+  // get user notes
+  const userNotes = await db
+    .collection("userModlogs")
+    .findOne({ guild_id: guildId, user_id: userId, notes: { $exists: true } });
+
+  // return notes if they exist
+  if (userNotes && userNotes.notes) {
+    return userNotes.notes;
+  } else {
+    return null; // or an empty string if preferred
+  }
+}
+
 export async function findLogByCase(db, guildId, caseNumber) {
   // find log by case number
   const log = await db

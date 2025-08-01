@@ -339,3 +339,102 @@ export async function addPurgeLog(
     .setTimestamp(new Date());
   await modlogsChannel.send({ embeds: [logEmbed] });
 }
+
+export async function addSlowmodeLog(
+  interaction,
+  guildId,
+  moderatorId,
+  channelId,
+  duration,
+  reason
+) {
+  const db = interaction.client.db;
+  // get latest modlog id from both collections
+  const latestUserModlog = await db
+    .collection("userModlogs")
+    .find({ guild_id: guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
+  const latestSlowmodeLog = await db
+    .collection("slowmodeLogs")
+    .find({ guild_id: guildId })
+    .sort({ id: -1 })
+    .limit(1)
+    .toArray();
+
+  const latestIdUser = latestUserModlog.length > 0 ? latestUserModlog[0].id : 0;
+  const latestIdSlowmode =
+    latestSlowmodeLog.length > 0 ? latestSlowmodeLog[0].id : 0;
+  const nextId = Math.max(latestIdUser, latestIdSlowmode) + 1;
+
+  // add slowmode log to db
+  await db.collection("slowmodeLogs").insertOne({
+    guild_id: guildId,
+    moderator_id: moderatorId,
+    channel_id: channelId,
+    duration: duration,
+    timestamp: new Date(),
+    id: nextId,
+    reason: reason,
+  });
+
+  // and send to modlogs channel
+  const settings = await db
+    .collection("guildModLogs")
+    .findOne({ guild_id: guildId });
+  const modlogsChannelId = settings ? settings.modlog_channel : null;
+  if (!modlogsChannelId) {
+    console.error("Modlogs channel not set for this guild.");
+    return;
+  }
+  const modlogsChannel = interaction.guild.channels.cache.get(modlogsChannelId);
+  if (!modlogsChannel || !modlogsChannel.isTextBased()) {
+    console.error("Modlogs channel not found or not a text channel.");
+    return;
+  }
+  const moderator = await interaction.client.users
+    .fetch(moderatorId)
+    .catch(() => null);
+
+  // convert seconds to human readable format
+  if (parseInt(duration, 10) === 0) {
+    var convertedDuration = "Disabled";
+  } else {
+    var convertedDuration = (() => {
+      const seconds = parseInt(duration, 10);
+      if (isNaN(seconds)) return "Invalid duration";
+
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+
+      return [
+        days > 0 ? `${days}d` : "",
+        hours > 0 ? `${hours}h` : "",
+        minutes > 0 ? `${minutes}m` : "",
+        secs > 0 ? `${secs}s` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+    })();
+  }
+
+  // build the log embed
+  const logEmbed = new EmbedBuilder()
+    .setColor("#9b59b6")
+    .setTitle(`Case #${nextId} | Slowmode`)
+    .addFields(
+      {
+        name: "Moderator",
+        value: moderator ? moderator.tag : "Unknown",
+        inline: true,
+      },
+      { name: "Channel", value: `<#${channelId}>`, inline: true },
+      { name: "Duration", value: `${convertedDuration}`, inline: true },
+      { name: "Reason", value: reason || "No reason provided", inline: true }
+    )
+    .setTimestamp(new Date());
+  await modlogsChannel.send({ embeds: [logEmbed] });
+}

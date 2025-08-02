@@ -17,6 +17,7 @@ export const data = new SlashCommandBuilder()
       )
       .setRequired(false)
   );
+export const cooldown = 10;
 export async function execute(interaction) {
   const packageName = interaction.options.getString("package").trim();
   const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;

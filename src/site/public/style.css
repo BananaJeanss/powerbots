@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap");
+
+body {
+  font-family: "DM Serif Text", serif;
+  background-color: #aa8e69;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #722e00;
+}
+
+hr {
+  width: 100%;
+  max-width: 600px;
+  border: none;
+  border-top: 1px solid #fff;
+  margin: 20px 0;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 50px;
+  margin-top: 50px;
+  font-size: 1.2em;
+}
+
+#health::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  box-shadow: 0 0 6px 2px #4caf50;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+#health.offline::before {
+  background-color: #f44336;
+  box-shadow: 0 0 6px 2px #f44336;
+}
+
+#health.checking::before {
+  background-color: #ffc400;
+  box-shadow: 0 0 6px 2px #ffc400;
+}
+
+header ul {
+  display: flex;
+  flex-direction: row;
+  gap: 25px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+table {
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse;
+}
+
+td,
+th {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #fff;
+}

@@ -6,10 +6,12 @@ import { fileURLToPath } from "node:url";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { config } from "dotenv";
 import { MongoClient } from "mongodb";
+import { startExpressSite } from "./site/express.js";
 
 // env file config
 config();
 const token = process.env.DISCORD_BOT_TOKEN;
+const SITE_ENABLED = process.env.SITE_ENABLED === "true";
 
 // mongodb setup
 const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
@@ -77,3 +79,7 @@ for (const file of eventFiles) {
 }
 
 client.login(token);
+
+if (SITE_ENABLED) {
+  startExpressSite();
+}

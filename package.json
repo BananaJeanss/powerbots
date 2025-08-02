@@ -28,6 +28,8 @@
     "color-2-name": "^1.4.4",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "mongodb": "^6.18.0"
   }
 }

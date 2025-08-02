@@ -24,6 +24,8 @@
   "dependencies": {
     "bad-words": "^4.0.0",
     "canvas": "^3.1.2",
+    "color": "^5.0.0",
+    "color-2-name": "^1.4.4",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
     "mongodb": "^6.18.0"

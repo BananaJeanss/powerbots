@@ -35,6 +35,10 @@ The goal of this project is to just fit as much tools/commands as possible, in o
 
 More commands can be found via [commands.md](commands.md).
 
+## Screenshot
+
+<img src="assets/screenshot.png" alt="screenshot" width="400"/>
+
 ## Quick Start
 
 1. **Clone the repository**
@@ -64,9 +68,9 @@ More commands can be found via [commands.md](commands.md).
 
 5. **Start the bot**
 
-    ```sh
-    npm run start
-    ```
+   ```sh
+   npm run start
+   ```
 
 ## Contributing
 
